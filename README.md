@@ -3,7 +3,7 @@ An ArXiV scraper to retrieve records from given categories and date range
 
 ## Install
 
-Use pip:
+Use pip (not active yet):
 
 ```bash
 $ pip3 install arxivscraper
@@ -52,24 +52,5 @@ cols = ('id', 'title', 'categories', 'abstract', 'doi', 'created', 'updated', 'a
 df = pd.DataFrame(output,columns=cols)
 ```
 
-
-To scrape all e-prints in `physics` category from `1 June 2017` until `6 June 2017`:
-
-### On command line (to-do list)
-`python arxivscraper.py [-c|categories] [-f|from] [-u|until] [-w|waitingtime]`
-
-* `-c`: No default value
-* `-f`: Default first day of the current month
-* `-u`: Default today
-* `-w`: Default: 30 sec
-`python arxivscraper.py -c physics -f 2017-06-01 -u 2017-06-06`
-
-Note that the date is in `YYYY-MM-DD` format.
-
-At each `API` call, only 1000 records are returned. The scripts waits 30 seconds to make the next call. You can change the waiting time (in seconds) between calls by `-w` flag. Example:
-
-`python arxivscraper.py -c physics -f 2017-06-01 -u 2017-06-06 -w 20`
-
-* The retrieved results also include records updated during the date range even if there created out of this range.
-* to access help, `-h`
-* To list all categories: to see a list of categories, see [here]().
+## Author
+Mahdi Sadjadi, 2017.
