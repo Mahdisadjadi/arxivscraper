@@ -1,18 +1,11 @@
-# To-do list
+## To-do list (code)
 
 * Add command line option to run
 * Add functions to filter out the results of API calls based on subcategories
-or 
-*
+or title/abstract containing specific terms.
 
 
-
-
-
-
-
-
-
+## To-do list (documentation)
 On command line
 `python arxivscraper.py [-c|categories] [-f|from] [-u|until] [-w|waitingtime]`
 
