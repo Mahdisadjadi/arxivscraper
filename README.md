@@ -3,7 +3,7 @@ An ArXiV scraper to retrieve records from given categories and date range
 
 ## Install
 
-Use pip (not active yet):
+Use pip:
 
 ```bash
 $ pip3 install arxivscraper
@@ -55,5 +55,5 @@ df = pd.DataFrame(output,columns=cols)
 ## Author
 Mahdi Sadjadi, 2017.
 
-##License
-This project is licensed under the MIT License - see the LICENSE.md file for details
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
