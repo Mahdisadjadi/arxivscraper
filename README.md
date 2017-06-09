@@ -53,10 +53,10 @@ df = pd.DataFrame(output,columns=cols)
 ```
 
 ### Categories
-Here is a list of all categories available on ArXiv. For a complete list of subcategories, see [categories.md](categories.md). 
+Here is a list of all categories available on ArXiv. For a complete list of subcategories, see [categories.md](categories.md).
 
-| Category | Code
-| --- | --- | --- | --- |
+| Category | Code |
+| --- | --- |
 | Astrophysics | `astro-ph` |
 | Condensed Matter | `cond-mat` |
 | General Relativity and Quantum Cosmology | `gr-qc` |
