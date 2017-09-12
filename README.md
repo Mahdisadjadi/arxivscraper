@@ -99,9 +99,9 @@ Ideas/bugs/comments? Please open an issue or submit a pull request on Github.
 ## Author
 * **Mahdi Sadjadi**, 2017.
 
-* Website: [mahdisadjadi.com](mahdisadjadi.com)
+* Website: [mahdisadjadi.com](http://mahdisadjadi.com)
 
-* Twitter: [@mahdisadjadi](twitter.com/MahdiSadjadi)
+* Twitter: [@mahdisadjadi](http://twitter.com/MahdiSadjadi)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
