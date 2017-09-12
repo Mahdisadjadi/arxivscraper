@@ -3,10 +3,10 @@ An ArXiV scraper to retrieve records from given categories and date range.
 
 ## Install
 
-Use pip:
+Use `pip` (or `pip3` for python3):
 
 ```bash
-$ pip3 install arxivscraper
+$ pip install arxivscraper
 ```
 
 or download the source and use `setup.py`:
@@ -15,20 +15,25 @@ or download the source and use `setup.py`:
 $ python setup.py install
 ```
 
-or if you do not want to install, you can copy `arxivscraper.py` into your working
+or if you do not want to install the module, copy `arxivscraper.py` into your working
 directory.
 
-## Usage
+To update the module using `pip`:
+```bash
+pip install arxivscraper --upgrade
+```
 
-### In script
+## Examples
+
+### Without filtering
 
 You can directly use `arxivscraper` in your scripts. Let's import `arxivscraper`
-and create a scraper to fetch all eprints in condensed matter physics category
-from 27 May 2017 until 7 June 2017:
+and create a scraper to fetch all preprints in condensed matter physics category
+from 27 May 2017 until 7 June 2017 (for other categories, see below):
 
 ```python
 import arxivscraper
-scraper = arxivscraper.Scraper(category='physics:cond-mat', date_from='2017-05-27',date_until='2017-06-07',t=30)
+scraper = arxivscraper.Scraper(category='physics:cond-mat', date_from='2017-05-27',date_until='2017-06-07')
 ```
 Once we built an instance of the scraper, we can start the scraping:
 
@@ -52,33 +57,48 @@ cols = ('id', 'title', 'categories', 'abstract', 'doi', 'created', 'updated', 'a
 df = pd.DataFrame(output,columns=cols)
 ```
 
+### With filtering
+To have more control over the output, you could supply a dictionary to filter out the results. As an example, let's collect all preprints related to machine learning. This subcategory (`stat.ML`) is part of the statistics (`stat`) category. In addition, we want those preprints that word `learning` appears in their abstract.
+
+```python
+scraper = ax.Scraper(category='stat',date_from='2017-08-01',date_until='2017-08-10',t=10, filters={'categories':['stat.ml'],'abstract':['learning']})
+output = scraper.scrape()
+```
+
+In addition to `categories` and `abstract`, other available keys for `filters` are: `author` and `title`.
+
+
 ### Categories
 Here is a list of all categories available on ArXiv. For a complete list of subcategories, see [categories.md](categories.md).
 
 | Category | Code |
 | --- | --- |
-| Astrophysics | `astro-ph` |
-| Condensed Matter | `cond-mat` |
-| General Relativity and Quantum Cosmology | `gr-qc` |
-| High Energy Physics - Experiment | `hep-ex` |
-| High Energy Physics - Lattice | `hep-lat` |
-| High Energy Physics - Phenomenology | `hep-ph` |
-| High Energy Physics - Theory | `hep-th` |
-| Mathematical Physics | `math-ph` |
-| Nonlinear Sciences | `nlin` |
-| Nuclear Experiment | `nucl-ex` |
-| Nuclear Theory | `nucl-th` |
-| Physics | `physics` |
-| Quantum Physics | `quant-ph` |
+| Computer Science | `cs` |
 | Mathematics | `math` |
-| Computing Research Repository | `CoRR` |
+| Physics | `physics` |
+| Astrophysics | `physics:astro-ph` |
+| Condensed Matter | `physics:cond-mat` |
+| General Relativity and Quantum Cosmology | `physics:gr-qc` |
+| High Energy Physics - Experiment | `physics:hep-ex` |
+| High Energy Physics - Lattice | `physics:hep-lat` |
+| High Energy Physics - Phenomenology | `physics:hep-ph` |
+| High Energy Physics - Theory | `physics:hep-th` |
+| Mathematical Physics | `physics:math-ph` |
+| Nonlinear Sciences | `physics:nlin` |
+| Nuclear Experiment | `physics:nucl-ex` |
+| Nuclear Theory | `physics:nucl-th` |
+| Physics (Other) | `physics:physics` |
+| Quantum Physics | `physics:quant-ph` |
 | Quantitative Biology | `q-bio` |
 | Quantitative Finance | `q-fin` |
 | Statistics | `stat` |
 
+Ideas/bugs/comments? Please open an issue or pull request on github.
 
 ## Author
 Mahdi Sadjadi, 2017.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Acknowledgments
