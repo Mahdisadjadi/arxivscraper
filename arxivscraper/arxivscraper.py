@@ -2,7 +2,7 @@
 A python program to retreive recrods from ArXiv.org in given
 categories and specific date range.
 
-Author: Mahdi Sadjadi (sadjadi.seyedmahdi@gmail.com).
+Author: Mahdi Sadjadi (sadjadi.seyedmahdi[AT]gmail[DOT]com).
 """
 from __future__ import print_function
 import xml.etree.ElementTree as ET

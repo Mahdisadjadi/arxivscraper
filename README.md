@@ -68,7 +68,7 @@ output = scraper.scrape()
 In addition to `categories` and `abstract`, other available keys for `filters` are: `author` and `title`.
 
 
-### Categories
+## Categories
 Here is a list of all categories available on ArXiv. For a complete list of subcategories, see [categories.md](categories.md).
 
 | Category | Code |
