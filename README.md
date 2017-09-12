@@ -93,12 +93,17 @@ Here is a list of all categories available on ArXiv. For a complete list of subc
 | Quantitative Finance | `q-fin` |
 | Statistics | `stat` |
 
-Ideas/bugs/comments? Please open an issue or pull request on github.
+## Contributing
+Ideas/bugs/comments? Please open an issue or submit a pull request on Github.
 
 ## Author
-Mahdi Sadjadi, 2017.
+* **Mahdi Sadjadi**, 2017.
+
+* Website: [mahdisadjadi.com](mahdisadjadi.com)
+
+* Twitter: [@mahdisadjadi](twitter.com/MahdiSadjadi)
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
