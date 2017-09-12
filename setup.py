@@ -28,6 +28,7 @@ setup(
     author = "Mahdi Sadjadi",
     author_email = "sadjadi.seyedmahdi@gmail.com",
     url = "https://github.com/Mahdisadjadi/arxivscraper",
+    download_url = 'https://github.com/Mahdisadjadi/arxivscraper/archive/0.0.2.tar.gz',
     py_modules = [""],
     keywords = ["arxiv", "scraper", "api", "citation"],
     license = "MIT",
