@@ -63,11 +63,12 @@ df = pd.DataFrame(output,columns=cols)
 To have more control over the output, you could supply a dictionary to filter out the results. As an example, let's collect all preprints related to machine learning. This subcategory (`stat.ML`) is part of the statistics (`stat`) category. In addition, we want those preprints that word `learning` appears in their abstract.
 
 ```python
+import arxivscraper.arxivscraper as ax
 scraper = ax.Scraper(category='stat',date_from='2017-08-01',date_until='2017-08-10',t=10, filters={'categories':['stat.ml'],'abstract':['learning']})
 output = scraper.scrape()
 ```
 
-In addition to `categories` and `abstract`, other available keys for `filters` are: `author` and `title`.
+> In addition to `categories` and `abstract`, other available keys for `filters` are: `author` and `title`.
 
 
 ## Categories
