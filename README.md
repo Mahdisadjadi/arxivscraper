@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.889853.svg)](https://doi.org/10.5281/zenodo.889853)
+
 # arxivscraper
 An ArXiV scraper to retrieve records from given categories and date range.
 
