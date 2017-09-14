@@ -98,6 +98,23 @@ Here is a list of all categories available on ArXiv. For a complete list of subc
 ## Contributing
 Ideas/bugs/comments? Please open an issue or submit a pull request on Github.
 
+## How to cite
+If `arxivscraper` was useful in your work/research, please consider to cite it as :
+```
+Mahdi Sadjadi (2017). arxivscraper: Zenodo. http://doi.org/10.5281/zenodo.889853
+```
+
+or
+```
+@misc{msadjadi,
+  author       = {Mahdi Sadjadi},
+  title        = {arxivscraper},
+  year         = 2017,
+  doi          = {10.5281/zenodo.889853},
+  url          = {https://doi.org/10.5281/zenodo.889853}
+}
+```
+
 ## Author
 * **Mahdi Sadjadi**, 2017.
 
