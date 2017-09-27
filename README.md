@@ -77,6 +77,7 @@ Here is a list of all categories available on ArXiv. For a complete list of subc
 | Category | Code |
 | --- | --- |
 | Computer Science | `cs` |
+| Economics | `econ` |
 | Electrical Engineering and Systems Science | `eess` |
 | Mathematics | `math` |
 | Physics | `physics` |
