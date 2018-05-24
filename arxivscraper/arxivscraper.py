@@ -46,7 +46,7 @@ class Record(object):
     def _get_text(self, namespace, tag):
         """Extracts text from an xml field"""
         try:
-            return self.xml.find(namespace + tag).text.strip().lower().replace('\n', '')
+            return self.xml.find(namespace + tag).text.strip().lower().replace('\n', ' ')
         except:
             return ''
 
@@ -121,9 +121,8 @@ class Scraper(object):
         url = self.url
         print(url)
         ds = []
-        k = 0
+        k = 1
         while True:
-            k += 1
             print('fetching up to ', 1000 * k, 'records...')
             try:
                 response = urlopen(url)
@@ -131,11 +130,11 @@ class Scraper(object):
                 if e.code == 503:
                     to = int(e.hdrs.get('retry-after', 30))
                     print('Got 503. Retrying after {0:d} seconds.'.format(self.t))
-                    time.sleep(to)
+                    time.sleep(self.t)
                     continue
                 else:
                     raise
-
+            k += 1
             xml = response.read()
             root = ET.fromstring(xml)
             records = root.findall(OAI + 'ListRecords/' + OAI + 'record')
@@ -154,14 +153,18 @@ class Scraper(object):
                     if save_record:
                         ds.append(record)
 
-            token = root.find(OAI + 'ListRecords').find(OAI + 'resumptionToken')
+            try:
+                token = root.find(OAI + 'ListRecords').find(OAI + 'resumptionToken')
+            except:
+                return 1
             if token is None or token.text is None:
                 break
             else:
                 url = BASE + 'resumptionToken=%s' % token.text
 
         t1 = time.time()
-        print('fetching is completes in {0:.1f} seconds.'.format(t1 - t0))
+        print('fetching is completed in {0:.1f} seconds.'.format(t1 - t0))
+        print ('Total number of records {:d}'.format(len(ds)))
         return ds
 
 
