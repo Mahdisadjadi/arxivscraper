@@ -88,8 +88,8 @@ class Scraper(object):
     they were created outside of the given date range. Default: today.
     t: int
     Waiting time between subsequent calls to API, triggred by Error 503.
-	timeout: int 
-    Timeout in seconds after which the scraping stops.
+    timeout: int 
+    Timeout in seconds after which the scraping stops. Default: 300s
     filter: dictionary
     A dictionary where keys are used to limit the saved results. Possible keys:
     subcats, author, title, abstract. See the example, below.
@@ -98,7 +98,7 @@ class Scraper(object):
     Returning all eprints from
     """
 
-    def __init__(self, category, date_from=None, date_until=None, t=30, timeout=30, filters={}):
+    def __init__(self, category, date_from=None, date_until=None, t=30, timeout=300, filters={}):
         self.cat = str(category)
         self.t = t
         self.timeout = timeout
