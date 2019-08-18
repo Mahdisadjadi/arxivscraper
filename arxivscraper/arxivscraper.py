@@ -107,6 +107,16 @@ class Scraper(object):
     filter: dictionary
         A dictionary where keys are used to limit the saved results. Possible keys:
         subcats, author, title, abstract. See the example, below.
+
+    Example:
+    Returning all eprints from
+
+    ```
+        import arxivscraper.arxivscraper as ax
+        scraper = ax.Scraper(category='stat',date_from='2017-12-23',date_until='2017-12-25',t=10,
+                 filters={'affiliation':['facebook'],'abstract':['learning']})
+        output = scraper.scrape()
+    ```
     """
 
     def __init__(self, category, date_from=None, date_until=None, t=30, timeout=300, filters={}):
