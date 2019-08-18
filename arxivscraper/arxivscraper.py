@@ -42,6 +42,7 @@ class Record(object):
         self.updated = self._get_text(ARXIV, 'updated')
         self.doi = self._get_text(ARXIV, 'doi')
         self.authors = self._get_authors()
+        self.affiliation = self._get_affiliation()
 
     def _get_text(self, namespace, tag):
         """Extracts text from an xml field"""
@@ -55,16 +56,27 @@ class Record(object):
         authors = [author.find(ARXIV + 'keyname').text.lower() for author in authors]
         return authors
 
+    def _get_affiliation(self):
+        authors = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
+        try:
+            affiliation = [author.find(ARXIV + 'affiliation').text.lower() for author in authors]
+            return affiliation
+        except:
+            return []
+
     def output(self):
-        d = {'title': self.title,
-         'id': self.id,
-         'abstract': self.abstract,
-         'categories': self.cats,
-         'doi': self.doi,
-         'created': self.created,
-         'updated': self.updated,
-         'authors': self.authors,
-         'url': self.url}
+        d = {
+            'title': self.title,
+            'id': self.id,
+            'abstract': self.abstract,
+            'categories': self.cats,
+            'doi': self.doi,
+            'created': self.created,
+            'updated': self.updated,
+            'authors': self.authors,
+            'affiliation': self.affiliation,
+            'url': self.url
+             }
         return d
 
 
