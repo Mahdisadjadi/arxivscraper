@@ -32,6 +32,7 @@ setup(
     py_modules = [""],
     keywords = ["arxiv", "scraper", "api", "citation"],
     license = "MIT",
+    zip_safe= False,
     classifiers = [
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
