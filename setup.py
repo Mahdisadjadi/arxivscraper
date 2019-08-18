@@ -16,7 +16,7 @@ Collected data:
 
 import sys
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     sys.exit("""Error: Setuptools is required for installation.
  -> http://pypi.python.org/pypi/setuptools""")
@@ -30,9 +30,9 @@ setup(
     url = "https://github.com/Mahdisadjadi/arxivscraper",
     download_url = 'https://github.com/Mahdisadjadi/arxivscraper/archive/0.0.2.tar.gz',
     py_modules = [""],
+    packages=find_packages(),
     keywords = ["arxiv", "scraper", "api", "citation"],
     license = "MIT",
-    zip_safe= False,
     classifiers = [
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
