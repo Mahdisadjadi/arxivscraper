@@ -52,9 +52,11 @@ class Record(object):
             return ''
 
     def _get_authors(self):
-        authors = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
-        authors = [author.find(ARXIV + 'keyname').text.lower() for author in authors]
-        return authors
+        authors_xml = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
+        last_names = [author.find(ARXIV + 'keyname').text.lower() for author in authors_xml]
+        first_names = [author.find(ARXIV + 'forenames').text.lower() for author in authors_xml]
+        full_names = [a+' '+b for a,b in zip(first_names, last_names)]
+        return full_names
 
     def _get_affiliation(self):
         authors = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
@@ -91,23 +93,20 @@ class Scraper(object):
     Paramters
     ---------
     category: str
-    The category of scraped records
+        The category of scraped records
     data_from: str
-    starting date in format 'YYYY-MM-DD'. Updated eprints are included even if
-    they were created outside of the given date range. Default: first day of current month.
+        starting date in format 'YYYY-MM-DD'. Updated eprints are included even if
+        they were created outside of the given date range. Default: first day of current month.
     date_until: str
-    final date in format 'YYYY-MM-DD'. Updated eprints are included even if
-    they were created outside of the given date range. Default: today.
+        final date in format 'YYYY-MM-DD'. Updated eprints are included even if
+        they were created outside of the given date range. Default: today.
     t: int
-    Waiting time between subsequent calls to API, triggred by Error 503.
-    timeout: int 
-    Timeout in seconds after which the scraping stops. Default: 300s
+        Waiting time between subsequent calls to API, triggred by Error 503.
+    timeout: int
+        Timeout in seconds after which the scraping stops. Default: 300s
     filter: dictionary
-    A dictionary where keys are used to limit the saved results. Possible keys:
-    subcats, author, title, abstract. See the example, below.
-
-    Example:
-    Returning all eprints from
+        A dictionary where keys are used to limit the saved results. Possible keys:
+        subcats, author, title, abstract. See the example, below.
     """
 
     def __init__(self, category, date_from=None, date_until=None, t=30, timeout=300, filters={}):
