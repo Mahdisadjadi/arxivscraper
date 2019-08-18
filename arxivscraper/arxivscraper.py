@@ -100,6 +100,8 @@ class Scraper(object):
     they were created outside of the given date range. Default: today.
     t: int
     Waiting time between subsequent calls to API, triggred by Error 503.
+    timeout: int 
+    Timeout in seconds after which the scraping stops. Default: 300s
     filter: dictionary
     A dictionary where keys are used to limit the saved results. Possible keys:
     subcats, author, title, abstract. See the example, below.
@@ -108,9 +110,10 @@ class Scraper(object):
     Returning all eprints from
     """
 
-    def __init__(self, category, date_from=None, date_until=None, t=30, filters={}):
+    def __init__(self, category, date_from=None, date_until=None, t=30, timeout=300, filters={}):
         self.cat = str(category)
         self.t = t
+        self.timeout = timeout
         DateToday = datetime.date.today()
         if date_from is None:
             self.f = str(DateToday.replace(day=1))
@@ -130,11 +133,14 @@ class Scraper(object):
 
     def scrape(self):
         t0 = time.time()
+        tx = time.time()
+        elapsed = 0.0
         url = self.url
         print(url)
         ds = []
         k = 1
         while True:
+
             print('fetching up to ', 1000 * k, 'records...')
             try:
                 response = urlopen(url)
@@ -173,6 +179,13 @@ class Scraper(object):
                 break
             else:
                 url = BASE + 'resumptionToken=%s' % token.text
+
+            ty = time.time()
+            elapsed += (ty-tx)
+            if elapsed >= self.timeout:
+                break
+            else:
+                tx = time.time()
 
         t1 = time.time()
         print('fetching is completed in {0:.1f} seconds.'.format(t1 - t0))
