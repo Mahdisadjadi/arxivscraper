@@ -54,7 +54,10 @@ class Record(object):
     def _get_authors(self):
         authors_xml = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
         last_names = [author.find(ARXIV + 'keyname').text.lower() for author in authors_xml]
-        first_names = [author.find(ARXIV + 'forenames').text.lower() for author in authors_xml]
+        first_names = []
+        for author in authors_xml:
+            if author.find(ARXIV + 'forenames') is not None:
+                first_names.append(author.find(ARXIV + 'forenames').text.lower())
         full_names = [a+' '+b for a,b in zip(first_names, last_names)]
         return full_names
 
