@@ -151,7 +151,6 @@ class Scraper(object):
         tx = time.time()
         elapsed = 0.0
         url = self.url
-        print(url)
         ds = []
         k = 1
         while True:
