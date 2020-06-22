@@ -50,11 +50,17 @@ class Record(object):
             return self.xml.find(namespace + tag).text.strip().lower().replace('\n', ' ')
         except:
             return ''
+        
+    def _get_name(self, parent, attribute):
+        try: 
+            return parent.find(ARXIV + attribute).text.lower()
+        except:
+            return "n/a"
 
     def _get_authors(self):
         authors_xml = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
-        last_names = [author.find(ARXIV + 'keyname').text.lower() for author in authors_xml]
-        first_names = [author.find(ARXIV + 'forenames').text.lower() for author in authors_xml]
+        last_names = [self._get_name(author, 'keyname') for author in authors_xml]
+        first_names = [self._get_name(author, 'forenames') for author in authors_xml]
         full_names = [a+' '+b for a,b in zip(first_names, last_names)]
         return full_names
 
