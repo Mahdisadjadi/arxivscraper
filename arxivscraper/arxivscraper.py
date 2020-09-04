@@ -58,7 +58,7 @@ class Record(object):
             return "n/a"
 
     def _get_authors(self):
-        authors_xml = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
+        authors_xml = self.xml.findall('./metadata/*/' + ARXIV + 'authors/' + ARXIV + 'author')
         last_names = [self._get_name(author, 'keyname') for author in authors_xml]
         first_names = [self._get_name(author, 'forenames') for author in authors_xml]
         full_names = [a+' '+b for a,b in zip(first_names, last_names)]
