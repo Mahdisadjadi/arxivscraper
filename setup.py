@@ -23,7 +23,7 @@ except ImportError:
 
 setup(
     name = "arxivscraper",
-    version = "0.0.3",
+    version = "0.0.4",
     description = "Get arXiv.org metadate within a date range and category",
     author = "Mahdi Sadjadi",
     author_email = "sadjadi.seyedmahdi@gmail.com",
