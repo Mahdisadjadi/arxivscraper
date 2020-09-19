@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+nekot.md
 
 # C extensions
 *.so
