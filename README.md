@@ -70,7 +70,7 @@ output = scraper.scrape()
 
 > In addition to `categories` and `abstract`, other available keys for `filters` are: `author` and `title`.
 
-> Note that filters based on logical OR and not mutually exclusive. So if the specified word appears in the abstract,
+> Note that filters are based on logical OR and not mutually exclusive. So if the specified word appears in the abstract,
 the record will be saved even if it doesn't have the specified categories.
 
 ## Categories
