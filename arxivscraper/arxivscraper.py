@@ -52,12 +52,14 @@ class Record(object):
             return ''
         
     def _get_name(self, parent, attribute):
+        """Extracts author name from an xml field"""
         try: 
             return parent.find(ARXIV + attribute).text.lower()
         except:
             return "n/a"
 
     def _get_authors(self):
+        """Extract name of authors"""
         authors_xml = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
         last_names = [self._get_name(author, 'keyname') for author in authors_xml]
         first_names = [self._get_name(author, 'forenames') for author in authors_xml]
@@ -65,6 +67,7 @@ class Record(object):
         return full_names
 
     def _get_affiliation(self):
+        """Extract affiliation of authors"""
         authors = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
         try:
             affiliation = [author.find(ARXIV + 'affiliation').text.lower() for author in authors]
@@ -73,6 +76,7 @@ class Record(object):
             return []
 
     def output(self):
+        """Data for each paper record"""
         d = {
             'title': self.title,
             'id': self.id,
@@ -84,7 +88,7 @@ class Record(object):
             'authors': self.authors,
             'affiliation': self.affiliation,
             'url': self.url
-             }
+            }
         return d
 
 
@@ -115,7 +119,7 @@ class Scraper(object):
         subcats, author, title, abstract. See the example, below.
 
     Example:
-    Returning all eprints from
+    Returning all eprints from `stat` category:
 
     ```
         import arxivscraper.arxivscraper as ax
