@@ -9,6 +9,8 @@ import xml.etree.ElementTree as ET
 import datetime
 import time
 import sys
+from typing import Dict, List
+
 PYTHON3 = sys.version_info[0] == 3
 if PYTHON3:
     from urllib.parse import urlencode
@@ -17,9 +19,9 @@ if PYTHON3:
 else:
     from urllib import urlencode
     from urllib2 import HTTPError, urlopen
-OAI = '{http://www.openarchives.org/OAI/2.0/}'
-ARXIV = '{http://arxiv.org/OAI/arXiv/}'
-BASE = 'http://export.arxiv.org/oai2?verb=ListRecords&'
+
+from .constants import OAI, ARXIV, BASE
+
 
 class Record(object):
     """
@@ -33,62 +35,66 @@ class Record(object):
         """if not isinstance(object,ET.Element):
         raise TypeError("")"""
         self.xml = xml_record
-        self.id = self._get_text(ARXIV, 'id')
-        self.url = 'https://arxiv.org/abs/' + self.id
-        self.title = self._get_text(ARXIV, 'title')
-        self.abstract = self._get_text(ARXIV, 'abstract')
-        self.cats = self._get_text(ARXIV, 'categories')
-        self.created = self._get_text(ARXIV, 'created')
-        self.updated = self._get_text(ARXIV, 'updated')
-        self.doi = self._get_text(ARXIV, 'doi')
+        self.id = self._get_text(ARXIV, "id")
+        self.url = "https://arxiv.org/abs/" + self.id
+        self.title = self._get_text(ARXIV, "title")
+        self.abstract = self._get_text(ARXIV, "abstract")
+        self.cats = self._get_text(ARXIV, "categories")
+        self.created = self._get_text(ARXIV, "created")
+        self.updated = self._get_text(ARXIV, "updated")
+        self.doi = self._get_text(ARXIV, "doi")
         self.authors = self._get_authors()
         self.affiliation = self._get_affiliation()
 
-    def _get_text(self, namespace, tag):
+    def _get_text(self, namespace: str, tag: str) -> str:
         """Extracts text from an xml field"""
         try:
-            return self.xml.find(namespace + tag).text.strip().lower().replace('\n', ' ')
+            return (
+                self.xml.find(namespace + tag).text.strip().lower().replace("\n", " ")
+            )
         except:
-            return ''
-        
-    def _get_name(self, parent, attribute):
+            return ""
+
+    def _get_name(self, parent, attribute) -> str:
         """Extracts author name from an xml field"""
-        try: 
+        try:
             return parent.find(ARXIV + attribute).text.lower()
         except:
             return "n/a"
 
-    def _get_authors(self):
+    def _get_authors(self) -> List:
         """Extract name of authors"""
-        authors_xml = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
-        last_names = [self._get_name(author, 'keyname') for author in authors_xml]
-        first_names = [self._get_name(author, 'forenames') for author in authors_xml]
-        full_names = [a+' '+b for a,b in zip(first_names, last_names)]
+        authors_xml = self.xml.findall(ARXIV + "authors/" + ARXIV + "author")
+        last_names = [self._get_name(author, "keyname") for author in authors_xml]
+        first_names = [self._get_name(author, "forenames") for author in authors_xml]
+        full_names = [a + " " + b for a, b in zip(first_names, last_names)]
         return full_names
 
-    def _get_affiliation(self):
+    def _get_affiliation(self) -> str:
         """Extract affiliation of authors"""
-        authors = self.xml.findall(ARXIV + 'authors/' + ARXIV + 'author')
+        authors = self.xml.findall(ARXIV + "authors/" + ARXIV + "author")
         try:
-            affiliation = [author.find(ARXIV + 'affiliation').text.lower() for author in authors]
+            affiliation = [
+                author.find(ARXIV + "affiliation").text.lower() for author in authors
+            ]
             return affiliation
         except:
             return []
 
-    def output(self):
+    def output(self) -> Dict:
         """Data for each paper record"""
         d = {
-            'title': self.title,
-            'id': self.id,
-            'abstract': self.abstract,
-            'categories': self.cats,
-            'doi': self.doi,
-            'created': self.created,
-            'updated': self.updated,
-            'authors': self.authors,
-            'affiliation': self.affiliation,
-            'url': self.url
-            }
+            "title": self.title,
+            "id": self.id,
+            "abstract": self.abstract,
+            "categories": self.cats,
+            "doi": self.doi,
+            "created": self.created,
+            "updated": self.updated,
+            "authors": self.authors,
+            "affiliation": self.affiliation,
+            "url": self.url,
+        }
         return d
 
 
@@ -129,7 +135,15 @@ class Scraper(object):
     ```
     """
 
-    def __init__(self, category, date_from=None, date_until=None, t=30, timeout=300, filters={}):
+    def __init__(
+        self,
+        category: str,
+        date_from: str = None,
+        date_until: str = None,
+        t: int = 30,
+        timeout: int = 300,
+        filters: Dict[str, str] = {},
+    ):
         self.cat = str(category)
         self.t = t
         self.timeout = timeout
@@ -142,7 +156,14 @@ class Scraper(object):
             self.u = str(DateToday)
         else:
             self.u = date_until
-        self.url = BASE + 'from=' + self.f + '&until=' + self.u + '&metadataPrefix=arXiv&set=%s' % self.cat
+        self.url = (
+            BASE
+            + "from="
+            + self.f
+            + "&until="
+            + self.u
+            + "&metadataPrefix=arXiv&set=%s" % self.cat
+        )
         self.filters = filters
         if not self.filters:
             self.append_all = True
@@ -150,7 +171,7 @@ class Scraper(object):
             self.append_all = False
             self.keys = filters.keys()
 
-    def scrape(self):
+    def scrape(self) -> List[Dict]:
         t0 = time.time()
         tx = time.time()
         elapsed = 0.0
@@ -159,13 +180,13 @@ class Scraper(object):
         k = 1
         while True:
 
-            print('fetching up to ', 1000 * k, 'records...')
+            print("fetching up to ", 1000 * k, "records...")
             try:
                 response = urlopen(url)
             except HTTPError as e:
                 if e.code == 503:
-                    to = int(e.hdrs.get('retry-after', 30))
-                    print('Got 503. Retrying after {0:d} seconds.'.format(self.t))
+                    to = int(e.hdrs.get("retry-after", 30))
+                    print("Got 503. Retrying after {0:d} seconds.".format(self.t))
                     time.sleep(self.t)
                     continue
                 else:
@@ -173,9 +194,9 @@ class Scraper(object):
             k += 1
             xml = response.read()
             root = ET.fromstring(xml)
-            records = root.findall(OAI + 'ListRecords/' + OAI + 'record')
+            records = root.findall(OAI + "ListRecords/" + OAI + "record")
             for record in records:
-                meta = record.find(OAI + 'metadata').find(ARXIV + 'arXiv')
+                meta = record.find(OAI + "metadata").find(ARXIV + "arXiv")
                 record = Record(meta).output()
                 if self.append_all:
                     ds.append(record)
@@ -190,24 +211,24 @@ class Scraper(object):
                         ds.append(record)
 
             try:
-                token = root.find(OAI + 'ListRecords').find(OAI + 'resumptionToken')
+                token = root.find(OAI + "ListRecords").find(OAI + "resumptionToken")
             except:
                 return 1
             if token is None or token.text is None:
                 break
             else:
-                url = BASE + 'resumptionToken=%s' % token.text
+                url = BASE + "resumptionToken=%s" % token.text
 
             ty = time.time()
-            elapsed += (ty-tx)
+            elapsed += ty - tx
             if elapsed >= self.timeout:
                 break
             else:
                 tx = time.time()
 
         t1 = time.time()
-        print('fetching is completed in {0:.1f} seconds.'.format(t1 - t0))
-        print ('Total number of records {:d}'.format(len(ds)))
+        print("fetching is completed in {0:.1f} seconds.".format(t1 - t0))
+        print("Total number of records {:d}".format(len(ds)))
         return ds
 
 
@@ -216,39 +237,6 @@ def search_all(df, col, *words):
     Return a sub-DataFrame of those rows whose Name column match all the words.
     source: https://stackoverflow.com/a/22624079/3349443
     """
+    import numpy as np
+
     return df[np.logical_and.reduce([df[col].str.contains(word) for word in words])]
-
-
-cats = [
- 'astro-ph', 'cond-mat', 'gr-qc', 'hep-ex', 'hep-lat', 'hep-ph', 'hep-th',
- 'math-ph', 'nlin', 'nucl-ex', 'nucl-th', 'physics', 'quant-ph', 'math', 'CoRR', 'q-bio',
- 'q-fin', 'stat']
-subcats = {'cond-mat': ['cond-mat.dis-nn', 'cond-mat.mtrl-sci', 'cond-mat.mes-hall',
-              'cond-mat.other', 'cond-mat.quant-gas', 'cond-mat.soft', 'cond-mat.stat-mech',
-              'cond-mat.str-el', 'cond-mat.supr-con'],
- 'hep-th': [],'hep-ex': [],'hep-ph': [],
- 'gr-qc': [],'quant-ph': [],'q-fin': ['q-fin.CP', 'q-fin.EC', 'q-fin.GN',
-           'q-fin.MF', 'q-fin.PM', 'q-fin.PR', 'q-fin.RM', 'q-fin.ST', 'q-fin.TR'],
-
- 'nucl-ex': [],'CoRR': [],'nlin': ['nlin.AO', 'nlin.CG', 'nlin.CD', 'nlin.SI',
-          'nlin.PS'],
- 'physics': ['physics.acc-ph', 'physics.app-ph', 'physics.ao-ph',
-             'physics.atom-ph', 'physics.atm-clus', 'physics.bio-ph', 'physics.chem-ph',
-             'physics.class-ph', 'physics.comp-ph', 'physics.data-an', 'physics.flu-dyn',
-             'physics.gen-ph', 'physics.geo-ph', 'physics.hist-ph', 'physics.ins-det',
-             'physics.med-ph', 'physics.optics', 'physics.ed-ph', 'physics.soc-ph',
-             'physics.plasm-ph', 'physics.pop-ph', 'physics.space-ph'],
- 'math-ph': [],
- 'math': ['math.AG', 'math.AT', 'math.AP', 'math.CT', 'math.CA', 'math.CO',
-          'math.AC', 'math.CV', 'math.DG', 'math.DS', 'math.FA', 'math.GM', 'math.GN',
-          'math.GT', 'math.GR', 'math.HO', 'math.IT', 'math.KT', 'math.LO', 'math.MP',
-          'math.MG', 'math.NT', 'math.NA', 'math.OA', 'math.OC', 'math.PR', 'math.QA',
-          'math.RT', 'math.RA', 'math.SP', 'math.ST', 'math.SG'],
- 'q-bio': ['q-bio.BM',
-           'q-bio.CB', 'q-bio.GN', 'q-bio.MN', 'q-bio.NC', 'q-bio.OT', 'q-bio.PE', 'q-bio.QM',
-           'q-bio.SC', 'q-bio.TO'],
- 'nucl-th': [],'stat': ['stat.AP', 'stat.CO', 'stat.ML',
-          'stat.ME', 'stat.OT', 'stat.TH'],
- 'hep-lat': [],'astro-ph': ['astro-ph.GA',
-              'astro-ph.CO', 'astro-ph.EP', 'astro-ph.HE', 'astro-ph.IM', 'astro-ph.SR']
- }
