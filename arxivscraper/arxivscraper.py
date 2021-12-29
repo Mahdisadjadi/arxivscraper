@@ -172,7 +172,7 @@ class Scraper(object):
             self.append_all = False
             self.keys = filters.keys()
 
-    def scrape(self):
+    def scrape(self) -> List[Dict]:
         t0 = time.time()
         tx = time.time()
         elapsed = 0.0
