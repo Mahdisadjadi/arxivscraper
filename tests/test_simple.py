@@ -10,7 +10,7 @@ def test_main(x=1):
     .Scraper(
         category='physics:cond-mat', 
         date_from='2017-05-27',
-        date_until='2017-05-28'
+        date_until='2017-05-30'
         )
     )
 
