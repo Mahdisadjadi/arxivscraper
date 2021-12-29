@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 import arxivscraper
 
-def test_main(x=1):
+def test_main():
     scraper = (
     arxivscraper
     .Scraper(
