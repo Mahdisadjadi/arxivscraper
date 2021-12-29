@@ -1,4 +1,6 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.889853.svg)](https://doi.org/10.5281/zenodo.889853)
+![](https://github.com/mahdisadjadi/arxivscraper/workflows/CI/badge.svg)
+![](https://github.com/mahdisadjadi/arxivscraper/workflows/Publish%20to%20PyPi/badge.svg)
 
 # arXivScraper
 An ArXiV scraper to retrieve records from given categories and date range.
@@ -16,9 +18,6 @@ or download the source and use `setup.py`:
 ```bash
 $ python setup.py install
 ```
-
-or if you do not want to install the module, copy `arxivscraper.py` into your working
-directory.
 
 To update the module using `pip`:
 ```bash
@@ -73,33 +72,6 @@ output = scraper.scrape()
 > Note that filters are based on logical OR and not mutually exclusive. So if the specified word appears in the abstract,
 the record will be saved even if it doesn't have the specified categories.
 
-## Categories
-Here is a list of all categories available on ArXiv. For a complete list of subcategories, see [categories.md](categories.md).
-
-| Category | Code |
-| --- | --- |
-| Computer Science | `cs` |
-| Economics | `econ` |
-| Electrical Engineering and Systems Science | `eess` |
-| Mathematics | `math` |
-| Physics | `physics` |
-| Astrophysics | `physics:astro-ph` |
-| Condensed Matter | `physics:cond-mat` |
-| General Relativity and Quantum Cosmology | `physics:gr-qc` |
-| High Energy Physics - Experiment | `physics:hep-ex` |
-| High Energy Physics - Lattice | `physics:hep-lat` |
-| High Energy Physics - Phenomenology | `physics:hep-ph` |
-| High Energy Physics - Theory | `physics:hep-th` |
-| Mathematical Physics | `physics:math-ph` |
-| Nonlinear Sciences | `physics:nlin` |
-| Nuclear Experiment | `physics:nucl-ex` |
-| Nuclear Theory | `physics:nucl-th` |
-| Physics (Other) | `physics:physics` |
-| Quantum Physics | `physics:quant-ph` |
-| Quantitative Biology | `q-bio` |
-| Quantitative Finance | `q-fin` |
-| Statistics | `stat` |
-
 ## Contributing
 Ideas/bugs/comments? Please open an issue or submit a pull request on Github.
 
@@ -130,4 +102,30 @@ or
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## Categories
+Here is a list of all categories available on ArXiv. For a complete list of subcategories, see [categories.md](categories.md).
+
+| Category | Code |
+| --- | --- |
+| Computer Science | `cs` |
+| Economics | `econ` |
+| Electrical Engineering and Systems Science | `eess` |
+| Mathematics | `math` |
+| Physics | `physics` |
+| Astrophysics | `physics:astro-ph` |
+| Condensed Matter | `physics:cond-mat` |
+| General Relativity and Quantum Cosmology | `physics:gr-qc` |
+| High Energy Physics - Experiment | `physics:hep-ex` |
+| High Energy Physics - Lattice | `physics:hep-lat` |
+| High Energy Physics - Phenomenology | `physics:hep-ph` |
+| High Energy Physics - Theory | `physics:hep-th` |
+| Mathematical Physics | `physics:math-ph` |
+| Nonlinear Sciences | `physics:nlin` |
+| Nuclear Experiment | `physics:nucl-ex` |
+| Nuclear Theory | `physics:nucl-th` |
+| Physics (Other) | `physics:physics` |
+| Quantum Physics | `physics:quant-ph` |
+| Quantitative Biology | `q-bio` |
+| Quantitative Finance | `q-fin` |
+| Statistics | `stat` |
+
