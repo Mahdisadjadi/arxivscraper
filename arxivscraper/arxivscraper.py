@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 import datetime
 import time
 import sys
+from typing import Dict, List
 
 PYTHON3 = sys.version_info[0] == 3
 if PYTHON3:
@@ -46,7 +47,7 @@ class Record(object):
         self.authors = self._get_authors()
         self.affiliation = self._get_affiliation()
 
-    def _get_text(self, namespace, tag):
+    def _get_text(self, namespace: str, tag: str) -> str:
         """Extracts text from an xml field"""
         try:
             return (
@@ -55,14 +56,14 @@ class Record(object):
         except:
             return ""
 
-    def _get_name(self, parent, attribute):
+    def _get_name(self, parent, attribute) -> str:
         """Extracts author name from an xml field"""
         try:
             return parent.find(ARXIV + attribute).text.lower()
         except:
             return "n/a"
 
-    def _get_authors(self):
+    def _get_authors(self) -> List:
         """Extract name of authors"""
         authors_xml = self.xml.findall(ARXIV + "authors/" + ARXIV + "author")
         last_names = [self._get_name(author, "keyname") for author in authors_xml]
@@ -70,7 +71,7 @@ class Record(object):
         full_names = [a + " " + b for a, b in zip(first_names, last_names)]
         return full_names
 
-    def _get_affiliation(self):
+    def _get_affiliation(self) -> str:
         """Extract affiliation of authors"""
         authors = self.xml.findall(ARXIV + "authors/" + ARXIV + "author")
         try:
@@ -81,7 +82,7 @@ class Record(object):
         except:
             return []
 
-    def output(self):
+    def output(self) -> Dict:
         """Data for each paper record"""
         d = {
             "title": self.title,
@@ -136,7 +137,13 @@ class Scraper(object):
     """
 
     def __init__(
-        self, category, date_from=None, date_until=None, t=30, timeout=300, filters={}
+        self,
+        category: str,
+        date_from: str = None,
+        date_until: str = None,
+        t: int = 30,
+        timeout: int = 300,
+        filters: Dict[str, str] = {},
     ):
         self.cat = str(category)
         self.t = t
