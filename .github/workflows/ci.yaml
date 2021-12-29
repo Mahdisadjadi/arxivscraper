@@ -1,6 +1,6 @@
 # github action python package
 # https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-name: Python package
+name: CI
 
 on: [push]
 
