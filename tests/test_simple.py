@@ -15,4 +15,4 @@ def test_main(x=1):
     )
 
     output = scraper.scrape()
-    assert len(output) == 97, "Result is empty."
+    assert len(output) == 97, "Result is not 97!"
