@@ -136,13 +136,14 @@ class Scraper(object):
     """
 
     def __init__(
-        self,
-        category: str,
-        date_from: str = None,
-        date_until: str = None,
-        t: int = 30,
-        timeout: int = 300,
-        filters: Dict[str, str] = {},
+            self,
+            category: str,
+            date_from: str = None,
+            date_until: str = None,
+            t: int = 30,
+            timeout: int = 300,
+            filters: Dict[str, List[str]] = {},
+            filters_behavior_or: bool = True
     ):
         self.cat = str(category)
         self.t = t
@@ -157,12 +158,12 @@ class Scraper(object):
         else:
             self.u = date_until
         self.url = (
-            BASE
-            + "from="
-            + self.f
-            + "&until="
-            + self.u
-            + "&metadataPrefix=arXiv&set=%s" % self.cat
+                BASE
+                + "from="
+                + self.f
+                + "&until="
+                + self.u
+                + "&metadataPrefix=arXiv&set=%s" % self.cat
         )
         self.filters = filters
         if not self.filters:
@@ -170,6 +171,8 @@ class Scraper(object):
         else:
             self.append_all = False
             self.keys = filters.keys()
+
+        self.filters_behavior_or = filters_behavior_or
 
     def scrape(self) -> List[Dict]:
         t0 = time.time()
@@ -201,12 +204,15 @@ class Scraper(object):
                 if self.append_all:
                     ds.append(record)
                 else:
-                    save_record = False
+                    save_record = not self.filters_behavior_or
                     for key in self.keys:
                         for word in self.filters[key]:
-                            if word.lower() in record[key]:
-                                save_record = True
-
+                            if self.filters_behavior_or:
+                                if word.lower() in record[key]:
+                                    save_record = True
+                            else:
+                                if word.lower() not in record[key]:
+                                    save_record = False
                     if save_record:
                         ds.append(record)
 
