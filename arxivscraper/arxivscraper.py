@@ -11,14 +11,11 @@ import time
 import sys
 from typing import Dict, List
 
-PYTHON3 = sys.version_info[0] == 3
-if PYTHON3:
-    from urllib.parse import urlencode
-    from urllib.request import urlopen
-    from urllib.error import HTTPError
-else:
-    from urllib import urlencode
-    from urllib2 import HTTPError, urlopen
+
+from urllib.parse import urlencode
+from urllib.request import urlopen
+from urllib.error import HTTPError
+
 
 from .constants import OAI, ARXIV, BASE
 
@@ -45,6 +42,7 @@ class Record(object):
         self.doi = self._get_text(ARXIV, "doi")
         self.authors = self._get_authors()
         self.affiliation = self._get_affiliation()
+        self.dict_obj = None
 
     def _get_text(self, namespace: str, tag: str) -> str:
         """Extracts text from an xml field"""
@@ -81,21 +79,23 @@ class Record(object):
         except:
             return []
 
+    @property
     def output(self) -> Dict:
         """Data for each paper record"""
-        d = {
-            "title": self.title,
-            "id": self.id,
-            "abstract": self.abstract,
-            "categories": self.cats,
-            "doi": self.doi,
-            "created": self.created,
-            "updated": self.updated,
-            "authors": self.authors,
-            "affiliation": self.affiliation,
-            "url": self.url,
-        }
-        return d
+        if self.dict_obj is None:
+            self.dict_obj = {
+                "title": self.title,
+                "id": self.id,
+                "abstract": self.abstract,
+                "categories": self.cats,
+                "doi": self.doi,
+                "created": self.created,
+                "updated": self.updated,
+                "authors": self.authors,
+                "affiliation": self.affiliation,
+                "url": self.url,
+            }
+        return self.dict_obj
 
 
 class Scraper(object):
@@ -143,6 +143,7 @@ class Scraper(object):
         t: int = 30,
         timeout: int = 300,
         filters: Dict[str, str] = {},
+        filter_func=None,
     ):
         self.cat = str(category)
         self.t = t
@@ -170,6 +171,8 @@ class Scraper(object):
         else:
             self.append_all = False
             self.keys = filters.keys()
+        
+        self.filter_func = filter_func
 
     def scrape(self) -> List[Dict]:
         t0 = time.time()
@@ -197,15 +200,18 @@ class Scraper(object):
             records = root.findall(OAI + "ListRecords/" + OAI + "record")
             for record in records:
                 meta = record.find(OAI + "metadata").find(ARXIV + "arXiv")
-                record = Record(meta).output()
+                record = Record(meta).output
                 if self.append_all:
                     ds.append(record)
                 else:
                     save_record = False
-                    for key in self.keys:
-                        for word in self.filters[key]:
-                            if word.lower() in record[key]:
-                                save_record = True
+                    if self.filter_func is None:
+                        for key in self.keys:
+                            for word in self.filters[key]:
+                                if word.lower() in record[key]:
+                                    save_record = True
+                    else: 
+                        save_record = self.filter_func(record)
 
                     if save_record:
                         ds.append(record)
