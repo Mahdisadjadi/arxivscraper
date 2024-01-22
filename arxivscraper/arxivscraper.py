@@ -148,6 +148,7 @@ class Scraper(object):
         self.cat = str(category)
         self.t = t
         self.timeout = timeout
+        self.filter_func = filter_func
         DateToday = datetime.date.today()
         if date_from is None:
             self.f = str(DateToday.replace(day=1))
@@ -166,13 +167,11 @@ class Scraper(object):
             + "&metadataPrefix=arXiv&set=%s" % self.cat
         )
         self.filters = filters
-        if not self.filters:
+        if not self.filters and not self.filter_func:
             self.append_all = True
         else:
             self.append_all = False
             self.keys = filters.keys()
-        
-        self.filter_func = filter_func
 
     def scrape(self) -> List[Dict]:
         t0 = time.time()
@@ -210,7 +209,7 @@ class Scraper(object):
                             for word in self.filters[key]:
                                 if word.lower() in record[key]:
                                     save_record = True
-                    else: 
+                    else:
                         save_record = self.filter_func(record)
 
                     if save_record:
