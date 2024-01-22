@@ -73,6 +73,31 @@ output = scraper.scrape()
 > Note that filters are based on logical OR and not mutually exclusive. So if the specified word appears in the abstract,
 the record will be saved even if it doesn't have the specified categories.
 
+### Customized Filtering Function
+We can further define our customized filter function for more complex filtering logic. Here is an example of filtering out the papers whose abstract contains both 'language model' and 'pre-training'. 
+```python
+def filter_func(record):
+    def keywords_in(keywords, text):
+        for keyword in keywords:
+            if keyword.lower() in text.lower():
+                return True
+        return False
+    if keywords_in(
+        keywords=['language model', 'large language model', 'natural language', 'nlp', 'nlu', 'nlg'],
+        text=record['abstract']
+    ) and keywords_in(
+        keywords=['pre-training', 'pretraining', 'pre-trained', 'pretrained'],
+        text=record['abstract']
+    ):
+        return True
+    return False
+
+import arxivscraper
+cat_filters={'categories':['cs.AI' 'cs.LG', 'cs.CL', 'cs.CV', 'cs.DC', 'cs.GL', 'cs.GT', 'cs.IR', 'cs.IT', 'cs.MM']}
+scraper = arxivscraper.Scraper(category='cs', date_from='2020-01-01', date_until='2024-01-22', filters=cat_filters, filter_func=filter_func)
+output = scraper.scrape()
+```
+
 ## Contributing
 Ideas/bugs/comments? Please open an issue or submit a pull request on Github.
 
