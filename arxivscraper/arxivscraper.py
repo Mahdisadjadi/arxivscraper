@@ -1,20 +1,24 @@
 """
-A python program to retrieve records from ArXiv.org in given
-categories and specific date range.
+This module provides a class `Scraper` to scrape ArXiv.org
+for eprints in a specific category and date range. The
+scraper can also filter the results based on the title,
+abstract, authors, and affiliations. The results are
+returned as a list of dictionaries.
 
 Author: Mahdi Sadjadi (sadjadi.seyedmahdi[AT]gmail[DOT]com).
+Last update: March 2025
 """
 
 import xml.etree.ElementTree as ET
 import datetime
 import time
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from urllib.request import urlopen
 from urllib.error import HTTPError
 
 from .constants import OAI, ARXIV, BASE, DEFAULT_RETRY_DELAY, DEFAULT_TIMEOUT
-from record import Record
+from .record import Record
 
 class Scraper(object):
     """
@@ -56,8 +60,8 @@ class Scraper(object):
     def __init__(
         self,
         category: str,
-        date_from: str = None,
-        date_until: str = None,
+        date_from: Optional[str] = None,
+        date_until: Optional[str] = None,
         t: int = DEFAULT_RETRY_DELAY,
         timeout: int = DEFAULT_TIMEOUT,
         filters: Dict[str, str] = {},
