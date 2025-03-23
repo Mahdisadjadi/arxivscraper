@@ -4,23 +4,25 @@ categories and specific date range.
 
 Author: Mahdi Sadjadi (sadjadi.seyedmahdi[AT]gmail[DOT]com).
 """
+
 from __future__ import print_function
-import xml.etree.ElementTree as ET
+
 import datetime
-import time
 import sys
+import time
+import xml.etree.ElementTree as ET
 from typing import Dict, List
 
 PYTHON3 = sys.version_info[0] == 3
 if PYTHON3:
+    from urllib.error import HTTPError
     from urllib.parse import urlencode
     from urllib.request import urlopen
-    from urllib.error import HTTPError
 else:
     from urllib import urlencode
     from urllib2 import HTTPError, urlopen
 
-from .constants import OAI, ARXIV, BASE
+from .constants import ARXIV, BASE, OAI
 
 
 class Record(object):
@@ -106,7 +108,7 @@ class Scraper(object):
     the current month will be used. If `until` is not provided,
     the current day will be used.
 
-    Paramters
+    Parameters
     ---------
     category: str
         The category of scraped records
