@@ -5,7 +5,7 @@ DEFAULT_TIMEOUT = 300
 DEFAULT_RETRY_DELAY = 30
 
 
-# catgories
+# categories
 cats = [
     "astro-ph",
     "cond-mat",
