@@ -2,6 +2,7 @@ from typing import Dict, List
 
 from .constants import ARXIV
 
+
 class Record(object):
     """
     A class to hold a single record from ArXiv
