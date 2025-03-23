@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from .constants import ARXIV
+from constants import ARXIV
 
 
 class Record(object):

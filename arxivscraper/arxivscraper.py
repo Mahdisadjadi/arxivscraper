@@ -9,15 +9,21 @@ Author: Mahdi Sadjadi (sadjadi.seyedmahdi[AT]gmail[DOT]com).
 Last update: March 2025
 """
 
+import argparse
 import datetime
+import os
+import sys
 import time
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional
 from urllib.error import HTTPError
 from urllib.request import urlopen
 
-from .constants import ARXIV, BASE, DEFAULT_RETRY_DELAY, DEFAULT_TIMEOUT, OAI
-from .record import Record
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from constants import ARXIV, BASE, DEFAULT_RETRY_DELAY, DEFAULT_TIMEOUT, OAI
+from record import Record
 
 
 class Scraper(object):
@@ -157,3 +163,63 @@ class Scraper(object):
         print("fetching is completed in {0:.1f} seconds.".format(t1 - t0))
         print("Total number of records {:d}".format(len(ds)))
         return ds
+
+
+def get_arguments():
+    parser = argparse.ArgumentParser(description="Scrape ArXiv for eprints")
+    parser.add_argument(
+        "--category",
+        type=str,
+        help="The category of scraped records",
+        required=True,
+    )
+    parser.add_argument(
+        "--date_from",
+        type=str,
+        help="starting date in format 'YYYY-MM-DD'",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "--date_until",
+        type=str,
+        help="final date in format 'YYYY-MM-DD'",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "--t",
+        type=int,
+        help="Waiting time between subsequent calls to API, triggered by Error 503",
+        required=False,
+        default=DEFAULT_RETRY_DELAY,
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        help="Timeout in seconds after which the scraping stops",
+        required=False,
+        default=DEFAULT_TIMEOUT,
+    )
+    parser.add_argument(
+        "--filters",
+        type=dict,
+        help="A dictionary where keys are used to limit the saved results",
+        required=False,
+        default={},
+    )
+    return parser.parse_args()
+
+
+# if __name__ == "__main__":
+#     args = get_arguments()
+#     scraper = Scraper(
+#         category=args.category,
+#         date_from=args.date_from,
+#         date_until=args.date_until,
+#         t=args.t,
+#         timeout=args.timeout,
+#         filters=args.filters,
+#     )
+#     output = scraper.scrape()
+#     print(output)
