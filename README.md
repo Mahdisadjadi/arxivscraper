@@ -105,14 +105,28 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Categories
 Here is a list of all categories available on ArXiv. For a complete list of subcategories, see [categories_v2.md](categories_v2.md).
+To generate this table, see `arxivscraper/util/create_arxiv_category_markdown_table`.
 
-| Category | Code |
-| --- | --- |
-| Computer Science | `cs` |
-| Economics | `econ` |
-| Electrical Engineering and Systems Science | `eess` |
-| Mathematics | `math` |
-| Physics | `physics` |
-| Quantitative Biology | `q-bio` |
-| Quantitative Finance | `q-fin` |
-| Statistics | `stat` |
+| Category Code | Category |
+|------|----------|
+| `cs` | Computer Science |
+| `econ` | Economics |
+| `eess` | Electrical Engineering and Systems Science |
+| `math` | Mathematics |
+| `physics` | Physics |
+| `physics:astro-ph` | Astrophysics |
+| `physics:cond-mat` | Condensed Matter |
+| `physics:gr-qc` | General Relativity and Quantum Cosmology |
+| `physics:hep-ex` | High Energy Physics - Experiment |
+| `physics:hep-lat` | High Energy Physics - Lattice |
+| `physics:hep-ph` | High Energy Physics - Phenomenology |
+| `physics:hep-th` | High Energy Physics - Theory |
+| `physics:math-ph` | Mathematical Physics |
+| `physics:nlin` | Nonlinear Sciences |
+| `physics:nucl-ex` | Nuclear Experiment |
+| `physics:nucl-th` | Nuclear Theory |
+| `physics:physics` | Physics (Other) |
+| `physics:quant-ph` | Quantum Physics |
+| `q-bio` | Quantitative Biology |
+| `q-fin` | Quantitative Finance |
+| `stat` | Statistics |
