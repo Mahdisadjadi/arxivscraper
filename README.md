@@ -105,7 +105,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Categories
 Here is a list of all categories available on ArXiv. For a complete list of subcategories, see [categories_v2.md](categories_v2.md).
-To generate this table, see `arxivscraper/util/create_arxiv_category_markdown_table`.
+To generate this table, see [create_arxiv_category_markdown_table](https://github.com/Mahdisadjadi/arxivscraper/blob/882cf91c86f5cacc7ace5712a44ce998e49276a0/arxivscraper/util.py#L80).
 
 | Category Code | Category |
 |------|----------|
