@@ -69,6 +69,8 @@ class Scraper(object):
         self.cat = str(category)
         self.t = t
         self.timeout = timeout
+
+        # Set the date range
         DateToday = datetime.date.today()
         if date_from is None:
             self.f = str(DateToday.replace(day=1))
@@ -78,6 +80,8 @@ class Scraper(object):
             self.u = str(DateToday)
         else:
             self.u = date_until
+
+        # Create URL
         self.url = (
             BASE
             + "from="
@@ -86,6 +90,7 @@ class Scraper(object):
             + self.u
             + "&metadataPrefix=arXiv&set=%s" % self.cat
         )
+
         self.filters = filters
         if not self.filters:
             self.append_all = True
