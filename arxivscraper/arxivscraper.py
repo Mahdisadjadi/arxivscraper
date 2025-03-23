@@ -9,16 +9,16 @@ Author: Mahdi Sadjadi (sadjadi.seyedmahdi[AT]gmail[DOT]com).
 Last update: March 2025
 """
 
-import xml.etree.ElementTree as ET
 import datetime
 import time
+import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional
-
-from urllib.request import urlopen
 from urllib.error import HTTPError
+from urllib.request import urlopen
 
-from .constants import OAI, ARXIV, BASE, DEFAULT_RETRY_DELAY, DEFAULT_TIMEOUT
+from .constants import ARXIV, BASE, DEFAULT_RETRY_DELAY, DEFAULT_TIMEOUT, OAI
 from .record import Record
+
 
 class Scraper(object):
     """
