@@ -1,8 +1,11 @@
+from .util import get_oai_url
+
 OAI = "{http://www.openarchives.org/OAI/2.0/}"
 ARXIV = "{http://arxiv.org/OAI/arXiv/}"
-BASE = "http://export.arxiv.org/oai2?verb=ListRecords&"
+BASE = get_oai_url("ListRecords")
 DEFAULT_TIMEOUT = 300
 DEFAULT_RETRY_DELAY = 30
+DEFAULT_RETRY_ATTEMPTS = 5
 
 
 # categories
