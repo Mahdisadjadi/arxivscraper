@@ -123,7 +123,11 @@ class Scraper(object):
                     to = int(
                         e.hdrs.get("retry-after", self.retry_delay)
                     )  # Use retry_delay here
-                    print("Got 503. Retrying after {0:d} seconds.".format(to))
+                    print(
+                        "Got 503. Retrying after {0:d} seconds.".format(
+                            self.retry_delay
+                        )
+                    )
                     time.sleep(to)  # Wait for the "retry-after" value
                     continue
                 else:
@@ -199,9 +203,9 @@ class Scraper(object):
         t0 = time.time()
         all_records = []
         url = self.url
-
+        k = 1
         while url:
-            print(f"Fetching records from: {url}")
+            print("fetching up to", 1000 * k, "records...")
             try:
                 xml_string = self._fetch_xml(url)
                 if not xml_string:
@@ -210,6 +214,7 @@ class Scraper(object):
                 records = self._parse_records(xml_string)
                 all_records.extend(records)
                 url = self._get_next_url(xml_string)  # Get next page
+                k += 1
             except Exception as e:
                 print(f"Error during scraping: {e}")
                 break  # Exit on error
@@ -228,7 +233,7 @@ class Scraper(object):
         k = 1
         while True:
 
-            print("fetching up to ", 1000 * k, "records...")
+            print("fetching up to", 1000 * k, "records...")
             try:
                 response = urlopen(url)
             except HTTPError as e:
