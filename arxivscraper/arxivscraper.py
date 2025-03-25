@@ -17,13 +17,19 @@ import time
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional
 from urllib.error import HTTPError
+from urllib.parse import urlencode
 from urllib.request import urlopen
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-
-from constants import ARXIV, BASE, DEFAULT_RETRY_DELAY, DEFAULT_TIMEOUT, OAI
-from record import Record
+from .constants import (
+    ARXIV,
+    BASE,
+    DEFAULT_RETRY_ATTEMPTS,
+    DEFAULT_RETRY_DELAY,
+    DEFAULT_TIMEOUT,
+    OAI,
+)
+from .record import Record
+from .util import check_category_supported
 
 
 class Scraper(object):
@@ -48,6 +54,8 @@ class Scraper(object):
         Waiting time between subsequent calls to API, triggered by Error 503.
     timeout: int
         Timeout in seconds after which the scraping stops. Default: 300s
+    retry_attempts: int
+        Number of retry attempts in case of an error. Default: 5
     filter: dictionary
         A dictionary where keys are used to limit the saved results. Possible keys:
         subcats, author, title, abstract. See the example, below.
@@ -70,39 +78,146 @@ class Scraper(object):
         date_until: Optional[str] = None,
         t: int = DEFAULT_RETRY_DELAY,
         timeout: int = DEFAULT_TIMEOUT,
-        filters: Dict[str, str] = {},
+        retry_attempts: int = DEFAULT_RETRY_ATTEMPTS,
+        filters: Dict[str, List[str]] = {},
     ):
+
         self.cat = str(category)
         self.t = t
+        self.retry_delay = t
         self.timeout = timeout
+        self.retry_attempts = retry_attempts
+
+        if not check_category_supported(category):
+            raise ValueError(
+                f"The category `{category}` doesn't exist in arXiv taxonomy."
+            )
 
         # Set the date range
         DateToday = datetime.date.today()
-        if date_from is None:
-            self.f = str(DateToday.replace(day=1))
-        else:
-            self.f = date_from
-        if date_until is None:
-            self.u = str(DateToday)
-        else:
-            self.u = date_until
+        self.f = date_from if date_from else str(DateToday.replace(day=1))
+        self.u = date_until if date_until else str(DateToday)
 
         # Create URL
-        self.url = (
-            BASE
-            + "from="
-            + self.f
-            + "&until="
-            + self.u
-            + "&metadataPrefix=arXiv&set=%s" % self.cat
-        )
+        query_params = {
+            "from": self.f,
+            "until": self.u,
+            "metadataPrefix": "arXiv",
+            "set": self.cat,
+        }
+        self.url = f"{BASE}{urlencode(query_params)}"
 
         self.filters = filters
-        if not self.filters:
-            self.append_all = True
-        else:
-            self.append_all = False
-            self.keys = filters.keys()
+        # all record should be appended?
+        self.append_all = not self.filters
+        self.keys = filters.keys() if filters else []
+
+    def _fetch_xml(self, url: str) -> str:
+        """Fetches the XML from the given URL with retry mechanism."""
+        for attempt in range(self.retry_attempts):
+            try:
+                response = urlopen(url)
+                return response.read()
+            except HTTPError as e:
+                if e.code == 503:
+                    to = int(
+                        e.hdrs.get("retry-after", self.retry_delay)
+                    )  # Use retry_delay here
+                    print("Got 503. Retrying after {0:d} seconds.".format(to))
+                    time.sleep(to)  # Wait for the "retry-after" value
+                    continue
+                else:
+                    print(
+                        f"HTTP Error {e.code} during attempt {attempt + 1}/{self.retry_attempts}: {e}"
+                    )
+                    if attempt == self.retry_attempts - 1:
+                        raise  # Re-raise the exception
+                    sleep_time = self.retry_delay * (2**attempt)  # exponential backoff
+                    print(f"Retrying in {sleep_time} seconds...")
+                    time.sleep(sleep_time)
+            except Exception as e:  # Catch other potential errors
+                print(f"Error during attempt {attempt + 1}/{self.retry_attempts}: {e}")
+                if attempt == self.retry_attempts - 1:
+                    raise
+                sleep_time = self.retry_delay * (2**attempt)  # exponential backoff
+                print(f"Retrying in {sleep_time} seconds...")
+                time.sleep(sleep_time)
+        return ""  # Should not reach here, but added to avoid warning
+
+    def _parse_records(self, xml_string: str) -> List[Dict]:
+        """Parses the XML and extracts records."""
+        try:
+            root = ET.fromstring(xml_string)
+            records = root.findall(OAI + "ListRecords/" + OAI + "record")
+            extracted_records = []
+            for record in records:
+                meta = record.find(OAI + "metadata").find(ARXIV + "arXiv")
+                if meta is None:
+                    continue  # Skip records without arXiv metadata
+                record_data = Record(meta).output()
+                if self.append_all:
+                    extracted_records.append(record_data)
+                else:
+                    if self._apply_filters(record_data):
+                        extracted_records.append(record_data)
+            return extracted_records
+        except ET.ParseError as e:
+            print(f"XML parsing error: {e}")
+            return []
+
+    def _apply_filters(self, record: Dict) -> bool:
+        """Applies the filters to a single record."""
+        for key in self.keys:
+            if key not in record:
+                continue  # Skip if the key isn't present in the record
+
+            record_value = record[key]
+            if not isinstance(record_value, str) and not isinstance(record_value, list):
+                continue  # Filter only string or list attributes
+
+            if isinstance(record_value, str):
+                record_value = [record_value]  # make strings filterable
+
+            for word in self.filters[key]:
+                if any(word.lower() in val.lower() for val in record_value):
+                    return True
+        return False
+
+    def _get_next_url(self, xml_string: str) -> Optional[str]:
+        """Extracts the resumption token to get the next page of results."""
+        try:
+            root = ET.fromstring(xml_string)
+            token = root.find(OAI + "ListRecords").find(OAI + "resumptionToken")
+            if token is not None and token.text:
+                return BASE + "?resumptionToken=%s" % token.text
+            return None
+        except ET.ParseError:
+            return None
+
+    def _scrape(self) -> List[Dict]:
+        """Scrapes records from ArXiv."""
+        t0 = time.time()
+        all_records = []
+        url = self.url
+
+        while url:
+            print(f"Fetching records from: {url}")
+            try:
+                xml_string = self._fetch_xml(url)
+                if not xml_string:
+                    print("No XML data received.")
+                    break  # Exit if no data is received
+                records = self._parse_records(xml_string)
+                all_records.extend(records)
+                url = self._get_next_url(xml_string)  # Get next page
+            except Exception as e:
+                print(f"Error during scraping: {e}")
+                break  # Exit on error
+
+        t1 = time.time()
+        print(f"Fetching is completed in {t1 - t0:.1f} seconds.")
+        print(f"Total number of records: {len(all_records)}")
+        return all_records
 
     def scrape(self) -> List[Dict]:
         t0 = time.time()
