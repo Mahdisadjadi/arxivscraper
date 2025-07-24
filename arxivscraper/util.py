@@ -77,6 +77,34 @@ def get_arxiv_sets():
         return None
 
 
+def check_category_supported(category):
+    """
+    Checks if a given category is supported by the arXiv API.
+
+    Parameters:
+    -----------
+    category: str
+        The category to check.
+
+    Returns:
+    --------
+    bool
+        True if the category is supported, False otherwise.
+    """
+
+    data = get_arxiv_sets()
+
+    if data is None:
+        return False
+
+    # Check if the category is in the list of supported categories
+    for item in data:
+        if item.get("setSpec") == category:
+            return True
+
+    return False
+
+
 def create_arxiv_category_markdown_table():
     """
     Generates a markdown table from a list of dictionaries.
