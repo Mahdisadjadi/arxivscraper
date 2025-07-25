@@ -130,3 +130,9 @@ To generate this table, see `arxivscraper/util/create_arxiv_category_markdown_ta
 | `q-bio` | Quantitative Biology |
 | `q-fin` | Quantitative Finance |
 | `stat` | Statistics |
+
+## Start History
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Mahdisadjadi/arxivscraper&type=Date)](https://www.star-history.com/#Mahdisadjadi/arxivscraper&Date)
