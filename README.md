@@ -25,53 +25,85 @@ To update the module using `pip`:
 pip install arxivscraper --upgrade
 ```
 
-## Examples
+## Usage
 
-### Without filtering
+### Basic Example
 
-You can directly use `arxivscraper` in your scripts. Let's import `arxivscraper`
-and create a scraper to fetch all preprints in condensed matter physics category
-from 27 May 2017 until 7 June 2017 (for other categories, see below):
+Import `arxivscraper` and create a scraper to fetch preprints from a category within a date range:
 
 ```python
 import arxivscraper
-scraper = arxivscraper.Scraper(category='physics:cond-mat', date_from='2017-05-27',date_until='2017-06-07')
-```
-Once we built an instance of the scraper, we can start the scraping:
 
-```python
+scraper = arxivscraper.Scraper(
+    category='cond-mat',
+    date_from='2017-05-27',
+    date_until='2017-06-07'
+)
 output = scraper.scrape()
 ```
-While scraper is running, it prints its status:
 
-```
-fetching up to  1000 records...
-fetching up to  2000 records...
-Got 503. Retrying after 30 seconds.
-fetching up to  3000 records...
-fetching is complete.
-```
+### Parameters
 
-Finally you can save the output in your favorite format or readily convert it into a pandas dataframe:
+The `Scraper` class accepts the following parameters:
+
+- `category` (str): The arXiv category code (e.g., `'cs'`, `'math'`, `'cond-mat'`, `'stat'`, etc.). Supports both base categories and subcategories in multiple formats:
+  - Base categories: `'cs'`, `'math'`, `'stat'`, etc.
+  - Subcategories with dot notation: `'cs.AI'`, `'cs.SE'`, etc.
+  - Subcategories with colon notation: `'cs:AI'`, `'stat:ML'`, etc.
+  - Physics legacy format: `'physics:cond-mat'`, `'physics:astro-ph'`, etc.
+
+- `date_from` (str, optional): Starting date in format `'YYYY-MM-DD'`. Defaults to the first day of the current month.
+
+- `date_until` (str, optional): End date in format `'YYYY-MM-DD'`. Defaults to today's date.
+
+- `t` (int, optional): Waiting time in seconds between retries on HTTP 503 errors. Default: `30`.
+
+- `timeout` (int, optional): Maximum time in seconds for the entire scraping operation. Default: `300`.
+
+- `filters` (dict, optional): Dictionary to filter results. Keys can be: `'title'`, `'abstract'`, `'author'`, `'categories'`, or `'affiliation'`. Values are lists of words to match (logical OR). Default: `{}` (no filtering).
+
+### Output
+
+The `scrape()` method returns a list of dictionaries. Each dictionary represents a paper with the following fields:
+
+- `id`: arXiv ID
+- `title`: Paper title
+- `abstract`: Paper abstract
+- `categories`: arXiv categories
+- `authors`: List of author names
+- `affiliation`: List of author affiliations
+- `doi`: Digital Object Identifier
+- `created`: Creation date
+- `updated`: Last updated date
+- `url`: URL to the paper on arXiv
+
+Example with pandas DataFrame:
+
 ```python
 import pandas as pd
-cols = ('id', 'title', 'categories', 'abstract', 'doi', 'created', 'updated', 'authors')
-df = pd.DataFrame(output,columns=cols)
+
+output = scraper.scrape()
+df = pd.DataFrame(output)
 ```
 
-### With filtering
-To have more control over the output, you could supply a dictionary to filter out the results. As an example, let's collect all preprints related to machine learning. This subcategory (`stat.ML`) is part of the statistics (`stat`) category. In addition, we want those preprints that word `learning` appears in their abstract.
+### Filtering Results
+
+To filter results based on specific criteria, pass a `filters` dictionary. Filters use logical OR, so records matching any of the specified words in a filter key will be included:
 
 ```python
-import arxivscraper.arxivscraper as ax
-scraper = ax.Scraper(category='stat',date_from='2017-08-01',date_until='2017-08-10',t=10, filters={'categories':['stat.ml'],'abstract':['learning']})
+scraper = arxivscraper.Scraper(
+    category='stat',
+    date_from='2017-08-01',
+    date_until='2017-08-10',
+    filters={
+        'categories': ['stat.ml'],
+        'abstract': ['learning']
+    }
+)
 output = scraper.scrape()
 ```
 
-> In addition to `categories` and `abstract`, other available keys for `filters` are: `author` and `title`.
-
-> Note that filters are based on logical OR and not mutually exclusive. So if the specified word appears in the abstract,
-the record will be saved even if it doesn't have the specified categories.
+This will return papers in the Statistics category where either the category includes `'stat.ml'` OR the abstract contains `'learning'`.
 
 ## Contributing
 Ideas/bugs/comments? Please open an issue or submit a pull request on Github.
@@ -113,20 +145,19 @@ To generate this table, see `arxivscraper/util/create_arxiv_category_markdown_ta
 | `econ` | Economics |
 | `eess` | Electrical Engineering and Systems Science |
 | `math` | Mathematics |
-| `physics` | Physics |
-| `physics:astro-ph` | Astrophysics |
-| `physics:cond-mat` | Condensed Matter |
-| `physics:gr-qc` | General Relativity and Quantum Cosmology |
-| `physics:hep-ex` | High Energy Physics - Experiment |
-| `physics:hep-lat` | High Energy Physics - Lattice |
-| `physics:hep-ph` | High Energy Physics - Phenomenology |
-| `physics:hep-th` | High Energy Physics - Theory |
-| `physics:math-ph` | Mathematical Physics |
-| `physics:nlin` | Nonlinear Sciences |
-| `physics:nucl-ex` | Nuclear Experiment |
-| `physics:nucl-th` | Nuclear Theory |
-| `physics:physics` | Physics (Other) |
-| `physics:quant-ph` | Quantum Physics |
+| `astro-ph` | Astrophysics |
+| `cond-mat` | Condensed Matter |
+| `gr-qc` | General Relativity and Quantum Cosmology |
+| `hep-ex` | High Energy Physics - Experiment |
+| `hep-lat` | High Energy Physics - Lattice |
+| `hep-ph` | High Energy Physics - Phenomenology |
+| `hep-th` | High Energy Physics - Theory |
+| `math-ph` | Mathematical Physics |
+| `nlin` | Nonlinear Sciences |
+| `nucl-ex` | Nuclear Experiment |
+| `nucl-th` | Nuclear Theory |
+| `physics` | Physics (Other) |
+| `quant-ph` | Quantum Physics |
 | `q-bio` | Quantitative Biology |
 | `q-fin` | Quantitative Finance |
 | `stat` | Statistics |

@@ -22,7 +22,7 @@ else:
     from urllib import urlencode
     from urllib2 import HTTPError, urlopen
 
-from .constants import ARXIV, BASE, OAI
+from .constants import ARXIV, BASE, OAI, cats, subcats
 
 
 class Record(object):
@@ -147,6 +147,7 @@ class Scraper(object):
         filters: Dict[str, str] = {},
     ):
         self.cat = str(category)
+        self._validate_category(self.cat)
         self.t = t
         self.timeout = timeout
         DateToday = datetime.date.today()
@@ -158,13 +159,18 @@ class Scraper(object):
             self.u = str(DateToday)
         else:
             self.u = date_until
+        
+        # Format category for OAI-PMH API
+        # Convert cs:SE or cs.SE to cs:cs:SE format required by arXiv OAI-PMH API
+        oai_category = self._format_category_for_oai(self.cat)
+        
         self.url = (
             BASE
             + "from="
             + self.f
             + "&until="
             + self.u
-            + "&metadataPrefix=arXiv&set=%s" % self.cat
+            + "&metadataPrefix=arXiv&set=%s" % oai_category
         )
         self.filters = filters
         if not self.filters:
@@ -172,6 +178,101 @@ class Scraper(object):
         else:
             self.append_all = False
             self.keys = filters.keys()
+
+    def _validate_category(self, category: str) -> None:
+        """Validate that the category is a valid arXiv category.
+        
+        Accepts formats:
+        - Base categories: 'cs', 'cond-mat', 'physics', etc.
+        - Subcategories: 'cs.SE', 'cs:SE', 'cond-mat.soft', etc.
+        - Legacy format: 'physics:cond-mat', 'physics:astro-ph', etc.
+        """
+        # Check if it's just a base category (no separator)
+        if category in cats:
+            return
+        
+        # Handle legacy physics: format (e.g., physics:cond-mat, physics:astro-ph)
+        if category.startswith("physics:"):
+            subcat = category[8:]  # Remove "physics:" prefix
+            # Check if it's a valid physics-related base category
+            physics_related = {
+                'astro-ph', 'cond-mat', 'gr-qc', 'hep-ex', 'hep-lat', 'hep-ph',
+                'hep-th', 'math-ph', 'nlin', 'nucl-ex', 'nucl-th', 'quant-ph'
+            }
+            if subcat in physics_related:
+                return
+        
+        # Check if it's a subcategory with colon or dot separator
+        for base in cats:
+            if category.startswith(base + "."):
+                subcat_full = category[len(base) + 1:]
+                subcat_name = base + "." + subcat_full
+                valid_subcats = subcats.get(base, [])
+                if subcat_name in valid_subcats:
+                    return
+            elif category.startswith(base + ":"):
+                subcat_full = category[len(base) + 1:]
+                # Check with dot notation (arXiv stores as base.subcat)
+                subcat_name = base + "." + subcat_full
+                valid_subcats = subcats.get(base, [])
+                if subcat_name in valid_subcats:
+                    return
+        
+        # If we get here, the category is invalid
+        available = ", ".join(sorted(cats))
+        raise ValueError(
+            f"Invalid category: '{category}'. "
+            f"Valid base categories are: {available}. "
+            f"Use format 'category', 'category:subcategory', 'category.subcategory', or legacy 'physics:subcategory'."
+        )
+    
+    def _format_category_for_oai(self, category: str) -> str:
+        """Format category for arXiv OAI-PMH API.
+        
+        Converts user-friendly format (cs.SE or cs:SE) to OAI-PMH format.
+        - Base category in main fields (cs, math, etc.) -> base_category:base_category
+        - Physics subcategories (astro-ph, cond-mat, etc.) -> physics:subcategory
+        - Legacy physics format (physics:cond-mat) -> already formatted, return as-is
+        - Other subcategories (cs.SE) -> base:base:subcat
+        """
+        # Special handling for physics-related base categories that need physics: prefix
+        physics_related = {
+            'astro-ph': 'physics:astro-ph',
+            'cond-mat': 'physics:cond-mat',
+            'gr-qc': 'physics:gr-qc',
+            'hep-ex': 'physics:hep-ex',
+            'hep-lat': 'physics:hep-lat',
+            'hep-ph': 'physics:hep-ph',
+            'hep-th': 'physics:hep-th',
+            'math-ph': 'physics:math-ph',
+            'nlin': 'physics:nlin',
+            'nucl-ex': 'physics:nucl-ex',
+            'nucl-th': 'physics:nucl-th',
+            'quant-ph': 'physics:quant-ph',
+        }
+        
+        if category in physics_related:
+            return physics_related[category]
+        
+        # Handle legacy physics: format (already correct for OAI-PMH)
+        if category.startswith("physics:"):
+            return category
+        
+        # Base categories like cs, math, stat, etc. need category:category format
+        if category in cats:
+            return f"{category}:{category}"
+        
+        # Handle colon or dot separated subcategories
+        for base in cats:
+            if category.startswith(base + "."):
+                subcat = category[len(base) + 1:]
+                return f"{base}:{base}:{subcat}"
+            elif category.startswith(base + ":"):
+                subcat = category[len(base) + 1:]
+                return f"{base}:{base}:{subcat}"
+        
+        # Fallback (shouldn't reach here if _validate_category passed)
+        return category
 
     def scrape(self) -> List[Dict]:
         t0 = time.time()
@@ -215,7 +316,7 @@ class Scraper(object):
             try:
                 token = root.find(OAI + "ListRecords").find(OAI + "resumptionToken")
             except:
-                return 1
+                return ds
             if token is None or token.text is None:
                 break
             else:
