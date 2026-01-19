@@ -22,7 +22,7 @@ else:
     from urllib import urlencode
     from urllib2 import HTTPError, urlopen
 
-from .constants import ARXIV, BASE, OAI
+from .constants import ARXIV, BASE, OAI, cats, subcats
 
 
 class Record(object):
@@ -147,6 +147,7 @@ class Scraper(object):
         filters: Dict[str, str] = {},
     ):
         self.cat = str(category)
+        self._validate_category(self.cat)
         self.t = t
         self.timeout = timeout
         DateToday = datetime.date.today()
@@ -172,6 +173,20 @@ class Scraper(object):
         else:
             self.append_all = False
             self.keys = filters.keys()
+
+    def _validate_category(self, category: str) -> None:
+        """Validate that the category is a valid arXiv category."""
+        # Extract base category (before colon, if present)
+        base_cat = category.split(":")[0]
+        
+        # Check if it's a valid base category or a subcat
+        if base_cat not in cats and category not in subcats:
+            available = ", ".join(sorted(cats))
+            raise ValueError(
+                f"Invalid category: '{category}'. "
+                f"Valid base categories are: {available}. "
+                f"Use format 'category' or 'category:subcategory'."
+            )
 
     def scrape(self) -> List[Dict]:
         t0 = time.time()
@@ -215,7 +230,7 @@ class Scraper(object):
             try:
                 token = root.find(OAI + "ListRecords").find(OAI + "resumptionToken")
             except:
-                return 1
+                return ds
             if token is None or token.text is None:
                 break
             else:
