@@ -176,17 +176,33 @@ class Scraper(object):
 
     def _validate_category(self, category: str) -> None:
         """Validate that the category is a valid arXiv category."""
-        # Extract base category (before colon, if present)
-        base_cat = category.split(":")[0]
+        # Check if it's just a base category (no separator)
+        if category in cats:
+            return
         
-        # Check if it's a valid base category or a subcat
-        if base_cat not in cats and category not in subcats:
-            available = ", ".join(sorted(cats))
-            raise ValueError(
-                f"Invalid category: '{category}'. "
-                f"Valid base categories are: {available}. "
-                f"Use format 'category' or 'category:subcategory'."
-            )
+        # Check if it's a subcategory with colon or dot separator
+        for base in cats:
+            if category.startswith(base + "."):
+                subcat_full = category[len(base) + 1:]
+                subcat_name = base + "." + subcat_full
+                valid_subcats = subcats.get(base, [])
+                if subcat_name in valid_subcats:
+                    return
+            elif category.startswith(base + ":"):
+                subcat_full = category[len(base) + 1:]
+                # Check with dot notation (arXiv stores as base.subcat)
+                subcat_name = base + "." + subcat_full
+                valid_subcats = subcats.get(base, [])
+                if subcat_name in valid_subcats:
+                    return
+        
+        # If we get here, the category is invalid
+        available = ", ".join(sorted(cats))
+        raise ValueError(
+            f"Invalid category: '{category}'. "
+            f"Valid base categories are: {available}. "
+            f"Use format 'category' or 'category:subcategory' or 'category.subcategory'."
+        )
 
     def scrape(self) -> List[Dict]:
         t0 = time.time()
