@@ -1,6 +1,6 @@
 [project]
 name = "arxivscraper"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
     { name = "mahdisadjadi", email = "sadjadi.seyedmahdi@gmail.com" }
 ]
